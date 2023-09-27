@@ -57,7 +57,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
         $stmt = $pdo->prepare("SELECT * FROM information where email=? ");
         $stmt->execute([$email]);
         $user = $stmt->fetch(PDO::FETCH_ASSOC);
-        if ($user && $user["passwords"] === $passwords) {
+        if ($user && password_verify($passwords, $user["passwords"])) {
             $message = "login success";
             echo ("<script>alert('$message')</script>");
         } else {
