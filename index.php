@@ -1,12 +1,19 @@
 <!DOCTYPE html>
 <html lang="en">
 <?php
-$db_host = 'your_host';
-$db_name = 'your_database';
-$db_user = 'your_username';
-$db_password = 'your_password';
+$db_host = 'localhost';
+$db_name = 'loginpdo';
+$db_user = 'root';
+$db_password = '';
+try {
+    $pdo = new PDO("mysql:host=$db_host;dbname=$db_name", $db_user, $db_password);
+    $pdo->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
+} catch (PDOException $e) {
+    die("database connection failed  " . $e->getMessage());
+}
 
 ?>
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -14,7 +21,7 @@ $db_password = 'your_password';
     <title>Document</title>
 </head>
 
-<body>
+
     <!--signe up-->
     <!-- <form action="">
     <label for="name">
@@ -22,16 +29,17 @@ $db_password = 'your_password';
      <input type="text" name="name">
     </label>
 </form> -->
+<body>
     <div class="container">
         <h2>Login</h2>
-        <form action="login.php" method="POST">
+        <form action="index.php" method="POST">
             <div class="form-group">
-                <label for="username">Username:</label>
-                <input type="text" id="username" name="username" required>
+                <label for="email">Username:</label>
+                <input type="text" id="email" name="email" required>
             </div>
             <div class="form-group">
                 <label for="password">Password:</label>
-                <input type="password" id="password" name="password" required>
+                <input type="password" id="password" name="passwords" required>
             </div>
             <div class="form-group">
                 <button type="submit">Login</button>
@@ -39,5 +47,26 @@ $db_password = 'your_password';
         </form>
     </div>
 </body>
+
+ <?php
+if ($_SERVER["REQUEST_METHOD"] == "POST") {
+    $email = $_POST['email'];
+    $passwords = $_POST['passwords'];
+    try {
+
+        $stmt = $pdo->prepare("SELECT * FROM information where email=? ");
+        $stmt->execute([$email]);
+        $user = $stmt->fetch(PDO::FETCH_ASSOC);
+        if ($user && $user["passwords"] === $passwords) {
+            $message = "login success";
+            echo ("<script>alert('$message')</script>");
+        } else {
+            echo "<p style='color:red;'>Invalid username or passwords!</p>";
+        }
+    } catch (PDOException $e) {
+        echo "error" . $e->getMessage();
+    }
+}
+?> 
 
 </html>
